@@ -3,14 +3,22 @@ import numpy as np
 
 class AgentFactory():
     """
-    Creates agents
+    Creates agents depending on type
+
+    Parameters:
+        self.correct_well (int): 0,1, or 2 corresponding to A,B,or C
+        self.prior_type (str): What kind of prior we are using (Uniform prior, Good prior, Bad prior)
+        self.seed_type (str):  "Informed or uninformed"
     """
-    def __init__(self):
-        """
+    def __init__(self, prior_type, seed_type):
+        self.correct_well = correct_well
+        self.seed_type = seed_type
 
-        """
 
-    def create_informed_agent(self, well_index, low_variance = True):
+        self.prior_type = prior_type
+
+
+    def create_informed_agent(self, low_variance = True):
         """
         Creates a probable informed agent. If variance is low then
         there is a very high chance the agent will have really good info.
@@ -47,18 +55,10 @@ class AgentFactory():
         return Agent(dist_params)
 
 
+
+
     def create_uninformed_agent(self):
         dist_params = np.random.random(3)
         dist_params /= np.sum(dist_params)
 
         return Agent(dist_params)
-
-
-
-# factory = AgentFactory()
-# a = factory.create_informed_agent(1, low_variance=False)
-# dist_params
-# obs = np.array([4, 1000, 1])
-# print(a.dist_params)
-# a.update_dist_params(obs, 1)
-# print(a.dist_params)

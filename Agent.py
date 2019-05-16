@@ -15,15 +15,18 @@ class Agent():
 
     variables:
     dist_params - ndarray (3 x 1) - the parameters of the tri-noulli distribution
+    location (x,y): randomly generates a location for the agent
+    health (float): Initializes health to 1.
+
     """
 
-    def __init__(self, dist_params, change_location = False):
+    def __init__(self, dist_params):
         #prior distribution parameters
-        self.location = np.array([0.,0.])
         self.dist_params = dist_params
-        if change_location:
-            domain = np.linspace(-1.,1.,101)
-            self.location = np.array([np.random.choice(domain),np.random.choice(domain)])
+
+        domain = np.linspace(-1.,1.,101)
+        self.location = np.array([np.random.choice(domain),np.random.choice(domain)])
+        self.health = 1.
 
 
 
@@ -50,14 +53,21 @@ class Agent():
         c - float - confidence weight of other agents decisions
         observations - ndarray (n x 3)
         """
-        m = np.mean(observations)
+        m = np.mean(self.observations)
         #update prior to posterior
-        self.dist_params = self.dist_params + c*(observations/m)
+        self.dist_params = self.dist_params + c*(self.observations/m)
         #normalize
         self.dist_params /= sum(self.dist_params)
 
-    def act(self):
+    def act(self, correct_well):
         """
             returns highest probable good choice
+            This is where we would code up the utility function as well
+            Enacts Consequences (such as death if health = 0)
         """
-        return np.argmax(self.dist_params)
+        choice = np.argmax(self.dist_params)
+
+        #update health depending on right or wrong choice
+        self.health = self.health - 1./3 if choice != correct_well else 1.
+
+        return choice
