@@ -2,16 +2,16 @@ from Agent import Agent
 import numpy as np
 
 class AgentFactory():
-    """ 
+    """
     Creates agents
     """
     def __init__(self):
-        """ 
-        
         """
-    
+
+        """
+
     def create_informed_agent(self, well_index, low_variance = True):
-        """ 
+        """
         Creates a probable informed agent. If variance is low then
         there is a very high chance the agent will have really good info.
         If variance is high, then there is a roughly 50% chance the agent
