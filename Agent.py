@@ -58,15 +58,24 @@ class Agent():
         Returns:
             MLE ((n,) ndarray):  most likely parameters given the observations
         """
-        # theta_1 = 3
-        # theta_2 = 6
-        # theta_3 = 12
+        a, b, c = observations
+        m = a + b + c
+        MLE = np.array((a/m, b/m, c/m))
+        return MLE
 
-        # liklihood = lambda x: -(x[0]**theta_1 * x[1]**theta_2 * (x[0] - x[1])**theta_3)
-        # liklihood_jac = jacobian(liklihood)
-        # x0 = np.ones(3)/3
-        # linear_constraint = LinearConstraint([[1, 0], [0, 1]], [0, 0], [np.inf, np.inf])
-        # res = minimize(liklihood, x0, method='trust-constr', jac=liklihood_jac,  constraints=[linear_constraint])
+    def get_MAP(self, observations):
+        """ """
+        MLE = self.get_MLE(observations)
+        #confidence level of well with highest confidence
+        c = max(self.dist_params)
+        c_index = np.argmax(self.dist_params)
+        x = c * beta.pdf(MLE[c_index], .5, .5)
+        x_index, y_index = np.where(self.dist_params != c)[0]
+        posterior = np.zeros(3)
+        posterior[[x_index, y_index]] = MLE[[x_index, y_index]]
+        posterior[c_index] = x
+        posterior /= sum(posterior)
+        return posterior
 
     def utility(self, well_locations):
         distances = np.linalg.norm(self.location-well_locations, axis = 1)
