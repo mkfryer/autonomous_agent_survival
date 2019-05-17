@@ -68,7 +68,9 @@ class World():
         #tracking the actions of the agents
         if self.population == 0:
             return
+
         observations = [self.Agent_list[0].act([],correctWell, self.well_locations)]
+
         for agent in self.Agent_list[1:]:
             if cascade:
                 observations.append(agent.act(observations,correctWell, self.well_locations))
@@ -89,21 +91,18 @@ class World():
         #return correctWell, np.sum(np.array(observations) == correctWell), self.population
 
 
-    def collect_data(self, obs, well):
+    def collect_data(self, obs, correctWell):
         """ This function is to collect what we do each day. We call it at the
-        end of the each_day() function and we pass in observations and the
-        correct well. The goal is to see what we do each day
+            end of the each_day() function and we pass in observations and the
+            correct well. The goal is to see what we do each day
 
         Parameters:
             obs (list): list of the actions of the day
         """
-        well1 = np.sum(np.array(observations) == 0)
-        well2 = np.sum(np.array(observations) == 1)
-        well3 = np.sum(np.array(observations) == 2)
+        well1 = np.sum(np.array(obs) == 0)
+        well2 = np.sum(np.array(obs) == 1)
+        well3 = np.sum(np.array(obs) == 2)
 
-        percent_correct = np.sum(np.array(observations) == correctWell)/self.population
+        percent_correct = np.sum(np.array(obs) == correctWell)/self.population
 
-        data = list(self.get_data)
-        data.append([self.population, percent_correct, (well1,well2,well3)])
-
-        self.get_data = np.array(data)
+        self.get_data = np.append(self.get_data,[self.population, percent_correct, well1,well2,well3])

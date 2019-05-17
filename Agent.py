@@ -29,6 +29,7 @@ class Agent():
         dist_params = np.random.random(3)
         dist_params /= np.sum(dist_params)
         self.dist_params = dist_params
+        self.seed_type = "neutral"
 
         #get location of the agent
         domain = np.linspace(-1.,1.,101)
@@ -36,7 +37,7 @@ class Agent():
 
         #adjust
         self.health = 3
-        self.global_confidence = True if confidence = -1 else False
+        self.global_confidence = True if confidence == -1 else False
 
         self.confidence = confidence if self.global_confidence else np.random.randint(1,50)/100.
 
@@ -44,7 +45,7 @@ class Agent():
         if not self.global_confidence:
             self.confidence = np.random.randint(0,100)/10000.
 
-        if seed == "good":
+        if seed_type == "good":
             self.create_informed_agent(correct_well)
         else: self.create_bad_agent(correct_well)
 
@@ -69,7 +70,7 @@ class Agent():
 
     def utility(self, well_locations):
         distances = np.linalg.norm(self.location-well_locations, axis = 1)
-        self.dist_param = distances/(2*np.sqrt(2))
+        self.distances = distances/(2*np.sqrt(2))
 
     def act(self, obs, correct_well, well_locations):
         """
@@ -94,8 +95,8 @@ class Agent():
             #normalize
             self.dist_params /= sum(self.dist_params)
 
-        #get utility function and update distribution parameters
-        self.utility(well_locations)
+            #get utility function and update distribution parameters
+            self.utility(well_locations)
 
         #checks if all three elements are tied
         if len(set(self.dist_params)) ==1:
@@ -108,6 +109,8 @@ class Agent():
         return choice
 
     def create_bad_agent(self, correct_well):
+        self.seed_type = "bad"
+
         dist_params = np.ones(3)
         dist_params[correct_well] = 0
         rand = np.random.random()
@@ -124,6 +127,7 @@ class Agent():
         well_index (int) - 0,1,2 representing the correct well
         """
 
+        self.seed_type = "good"
         a, b = (0, 0)
         dist_params = np.zeros(3)
 
