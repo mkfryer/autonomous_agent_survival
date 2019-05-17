@@ -21,7 +21,7 @@ class Agent():
 
     """
 
-    def __init__(self):
+    def __init__(self, confidence = -1):
         """
         Parameter:
         """
@@ -36,10 +36,13 @@ class Agent():
 
         #adjust
         self.health = 3
-        self.confidence = np.random.randint(0,50)/100.
+        self.global_confidence = True if confidence = -1 else False
+
+        self.confidence = confidence if self.global_confidence else np.random.randint(1,50)/100.
 
     def seed(self, seed_type, correct_well):
-        self.confidence = np.random.randint(50,100)/100.
+        if not self.global_confidence:
+            self.confidence = np.random.randint(0,100)/10000.
 
         if seed == "good":
             self.create_informed_agent(correct_well)

@@ -9,7 +9,7 @@ class World():
     being pumped to and create agents according to the prior type passed in.
 
     Parameters:
-        prior_type ((3,), ndarray): [%uninformed, %informed, %bad]
+
         correctWell (int): 0, 1, or 2
         wellA (x,y): Tuple of the x- and y-coordinates
         wellB (x,y): Tuple of the x- and y-coordinates
@@ -17,9 +17,18 @@ class World():
         population (int): Keeps track of our population numbers
     """
 
-    def __init__(self, ratio=[1,0,0], people=100):
+    def __init__(self, global_confidence=-1, good=0,bad=0, people=200):
         """ Initialize the case of Uniform, Unique, Good or Bad
+
+        ratio ((2,), ndarray): [%neutral, %good, %bad]
         """
+        #initialize data list
+        self.get_data = []
+
+        #establish population and ratio
+        self.population = people
+        self.ratio = np.array([people-good-bad,good,bad])/people
+
         #establish locations of the wells
         distance = np.linspace(-1,1,101)
         wellA = (np.random.choice(distance),np.random.choice(distance))
@@ -27,15 +36,8 @@ class World():
         wellC = (np.random.choice(distance),np.random.choice(distance))
         self.well_locations = np.concatenate(([wellA],[wellB],[wellC]))
 
-        #initialize data list
-        self.get_data = []
-
-        #establish population and ratio
-        self.population = people
-        self.ratio = np.array(ratio)
-
         #make list of agents
-        self.Agent_list = [Agent() for i in range(self.population)]
+        self.Agent_list = [Agent(global_confidence) for i in range(self.population)]
 
 
     def seed_list(self, correctWell):
