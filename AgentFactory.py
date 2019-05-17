@@ -6,11 +6,10 @@ class AgentFactory():
     Creates agents depending on type
 
     Parameters:
-        self.correct_well (int): 0,1, or 2 corresponding to A,B,or C
+
         self.seed_type (str):  "informed, uninformed, bad"
     """
-    def __init__(self, seed_type, correct_well == None):
-        self.seed_type = seed_type
+    def __init__(self):
         self.correct_well = correct_well
 
         if   self.seed_type == "uninformed": create_uninformed_agent(self)

@@ -1,6 +1,7 @@
 from AgentFactory import AgentFactory
 from AgentFactory import Agent
 import numpy as np
+import random
 
 
 class World():
@@ -17,60 +18,54 @@ class World():
         population (int): Keeps track of our population numbers
     """
 
-    def __init__(self, prior_type=[1,0,0], people=100):
+    def __init__(self, ratio=[1,0,0], people=100):
         """ Initialize the case of Uniform, Unique, Good or Bad
         """
         #establish locations of the wells
         distance = np.linspace(-1,1,101)
-        self.wellA = (np.random.choice(distance),np.random.choice(distance))
-        self.wellB = (np.random.choice(distance),np.random.choice(distance))
-        self.wellC = (np.random.choice(distance),np.random.choice(distance))
+        wellA = (np.random.choice(distance),np.random.choice(distance))
+        wellB = (np.random.choice(distance),np.random.choice(distance))
+        wellC = (np.random.choice(distance),np.random.choice(distance))
+        self.well_locations = np.concatenate(([wellA],[wellB],[wellC]))
 
+        #establish population and ratio
         self.population = people
-        self.prior = np.array(prior_type)
+        self.ratio = np.array(ratio)
 
-        self.make_uninformed_agents()
+        #make list of agents
+        self.Agent_list = [Agent() for i in self.population]
 
-    def make_uninformed_agents(self):
-        """Creates agents according to the distribution type.
-        This will call agentFactory which will make agents with those priors.
-        Acts as the first day
+
+    def seed_list(self, correctWell):
         """
-        #l,m,n = tuple(np.round(prior*peoples).astype(int))
-        l = int(np.round(self.prior[0]*self.population))
-        self.Agent_list = []
-        for i in range(l):
-            self.Agent_list.append(AgentFactory("uninformed"))
+        Parameters:
+            correctWell (int): 0,1,2 the correct_well
+        """
+        #make them random and get how many good and bad
+        random.shuffle(self.Agent_list)
+        (num_Good, num_Bad) = tuple([int(np.round(self.ratio[1:]*self.population))])
 
-        #self.num_Good = m
-        #self.num_Bad = n
+        #seed the agents
+        for Agent in self.Agent_list[:num_Good]:
+            Agent.seed("good",correctWell)
+        for Agent in self.Agent_list[num_Good:num_Good+num_Bad]:
+            Agent.seed("bad",correctWell)
 
-    def make_other_agents(self):
-        num_other = self.population - len(self.Agent_list)
-        new_prior = self.prior[1:] if self.prior[0] == 0 else: self.prior[1:]/self.prior[0]
-        num_Good = np.int(np.round(new_prior[0]*self.population))
-        num_Bad = np.int(np.round(new_prior[0]*self.population))
-        other_list = []
-        for j in range(num_Good):
-            other_list.append(AgentFactory("informed",self.correct_well))
-        for k in range(num_Bad):
-            other_list.append(AgentFactory("bad", self.correct_well))
-        return other_list
-
+        random.shuffle(self.Agent_list)
 
     def each_day(self):
-        self.correctWell = np.random.choice(np.array([0, 1, 2]))
+        correctWell = np.random.choice(np.array([0, 1, 2]))
 
-        working_list = np.array(self.Agent_list + self.make_other_agents())
-        working_list.shuffle()
+        #seed list
+        self.seed_list(correctWell)
 
         #tracking the actions of the agents
-        self.observations = [working_list[1].act(self.correctWell)]
-        for Agent in working_list[1:]:
+        observations = [self.Agent_list[1].act(correctWell, self.well_locations)]
+        for Agent in self.Angel_list[1:]:
             #I dont know how to decide the confidence
             confidence = np.random.random()
-            Agent.update_dist_params(self.observations, confidence)
-            self.observations.append(Agent.act(self.correctWell))
+            Agent.update_dist_params(observations, confidence)
+            observations.append(Agent.act(correctWell, self.well_locations))
 
         #update agents/population based on deaths
         deaths = 0
