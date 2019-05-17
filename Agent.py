@@ -29,7 +29,6 @@ class Agent():
         self.health = 1.
 
 
-
     def get_MLE(self, observations):
         """
         Paramters:
