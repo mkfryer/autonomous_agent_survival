@@ -27,6 +27,9 @@ class World():
         wellC = (np.random.choice(distance),np.random.choice(distance))
         self.well_locations = np.concatenate(([wellA],[wellB],[wellC]))
 
+        #initialize data list
+        self.get_data = []
+
         #establish population and ratio
         self.population = people
         self.ratio = np.array(ratio)
@@ -66,8 +69,7 @@ class World():
         for agent in self.Agent_list[1:]:
             #I dont know how to decide the confidence
             if cascade:
-                confidence = np.random.random()
-                agent.update_dist_params(observations, confidence)
+                agent.update_dist_params(observations)
             observations.append(agent.act(correctWell, self.well_locations))
 
         #update agents/population based on deaths
@@ -79,4 +81,26 @@ class World():
             self.Agent_list.remove(agent)
         self.population = len(self.Agent_list)
 
-        return correctWell, np.sum(np.array(observations) == correctWell), self.population
+        self.collect_data(observations,correctWell)
+
+        #return correctWell, np.sum(np.array(observations) == correctWell), self.population
+
+
+    def collect_data(self, obs, well):
+        """ This function is to collect what we do each day. We call it at the
+        end of the each_day() function and we pass in observations and the
+        correct well. The goal is to see what we do each day
+
+        Parameters:
+            obs (list): list of the actions of the day
+        """
+        well1 = np.sum(np.array(observations) == 0)
+        well2 = np.sum(np.array(observations) == 1)
+        well3 = np.sum(np.array(observations) == 2)
+
+        percent_correct = np.sum(np.array(observations) == correctWell)/self.population
+
+        data = list(self.get_data)
+        data.append([self.population, percent_correct, (well1,well2,well3)])
+
+        self.get_data = np.array(data)

@@ -33,9 +33,14 @@ class Agent():
         #get location of the agent
         domain = np.linspace(-1.,1.,101)
         self.location = np.array([np.random.choice(domain),np.random.choice(domain)])
+
+        #adjust
         self.health = 3
+        self.confidence = np.random.randint(0,50)/100.
 
     def seed(self, seed_type, correct_well):
+        self.confidence = np.random.randint(50,100)/100.
+
         if seed == "good":
             self.create_informed_agent(correct_well)
         else: self.create_bad_agent(correct_well)
@@ -60,7 +65,7 @@ class Agent():
         # res = minimize(liklihood, x0, method='trust-constr', jac=liklihood_jac,  constraints=[linear_constraint])
 
 
-    def update_dist_params(self, obs, c):
+    def update_dist_params(self, obs):
         """
         c (float): confidence weight of other agents decisions
         observations ((n,)ndarray): list of the wells the other agents chose
@@ -71,7 +76,7 @@ class Agent():
                                   Tools.percent_correct(observations,2)])
         n = observations.size
         #update prior to posterior
-        self.dist_params = self.dist_params + c * n * observed_dist
+        self.dist_params = self.dist_params + self.confidence * n * observed_dist
         #normalize
         self.dist_params /= sum(self.dist_params)
 
