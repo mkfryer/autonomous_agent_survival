@@ -17,7 +17,7 @@ class World():
         population (int): Keeps track of our population numbers
     """
 
-    def __init__(self, global_confidence=-1, good=0,bad=0, people=200):
+    def __init__(self, good=0,bad=0, people=200, global_confidence=-1):
         """ Initialize the case of Uniform, Unique, Good or Bad
 
         ratio ((2,), ndarray): [%neutral, %good, %bad]
@@ -42,6 +42,7 @@ class World():
 
     def seed_list(self, correctWell):
         """
+
         Parameters:
             correctWell (int): 0,1,2 the correct_well
         """
@@ -66,10 +67,9 @@ class World():
 
         #tracking the actions of the agents
         if self.population == 0:
-            return correctWell, 0, 0
+            return
         observations = [self.Agent_list[0].act(correctWell, self.well_locations)]
         for agent in self.Agent_list[1:]:
-            #I dont know how to decide the confidence
             if cascade:
                 agent.update_dist_params(observations)
             observations.append(agent.act(correctWell, self.well_locations))
