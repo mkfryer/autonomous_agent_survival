@@ -1,5 +1,4 @@
 import numpy as np, numpy.random
-from World import World
 from scipy.optimize import minimize
 from scipy.optimize import LinearConstraint
 import autograd.numpy as a_np
@@ -7,6 +6,7 @@ from autograd import grad, jacobian
 
 from sympy import solve, Poly, Eq, Function, exp
 from sympy.abc import x, y, z, a, b, c
+import Tools
 
 class Agent():
     """
@@ -45,14 +45,18 @@ class Agent():
         # res = minimize(liklihood, x0, method='trust-constr', jac=liklihood_jac,  constraints=[linear_constraint])
 
 
-    def update_dist_params(self, observations, c):
+    def update_dist_params(self, obs, c):
         """
         c - float - confidence weight of other agents decisions
         observations - ndarray (n x 3)
         """
-        m = np.mean(observations)
+        observations = np.array(obs)
+        observed_dist = np.array([Tools.percent_correct(observations,0),
+                                  Tools.percent_correct(observations,1),
+                                  Tools.percent_correct(observations,2)])
+        n = observations.size
         #update prior to posterior
-        self.dist_params = self.dist_params + c*(observations/m)
+        self.dist_params = self.dist_params + c * n * observed_dist
         #normalize
         self.dist_params /= sum(self.dist_params)
 
