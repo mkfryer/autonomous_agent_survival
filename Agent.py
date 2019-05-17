@@ -101,7 +101,7 @@ class Agent():
 
         #update health depending on right or wrong choice
         if choice != correct_well:
-            self.health = self.health - 1 
+            self.health = self.health - 1
         else:
             self.health = 3
 
