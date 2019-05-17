@@ -58,10 +58,10 @@ class Agent():
         Returns:
             MLE ((n,) ndarray):  most likely parameters given the observations
         """
-        a, b, c = observations
-        m = a + b + c
-        MLE = np.array((a/m, b/m, c/m))
-        return MLE
+         a, b, c = observations
+	        m = a + b + c
+	        MLE = np.array((a/m, b/m, c/m))
+	        return MLE
 
     def get_MAP(self, observations):
         """ """
