@@ -1,5 +1,4 @@
 import numpy as np, numpy.random
-from World import World
 from scipy.optimize import minimize
 from scipy.optimize import LinearConstraint
 import autograd.numpy as a_np
@@ -7,6 +6,7 @@ from autograd import grad, jacobian
 
 from sympy import solve, Poly, Eq, Function, exp
 from sympy.abc import x, y, z, a, b, c
+import Tools
 
 class Agent():
     """
@@ -14,7 +14,7 @@ class Agent():
     three water wells to choose to draw from
 
     variables:
-    dist_params - ndarray (3 x 1) - the parameters of the tri-noulli distribution
+    dist_params - ndarray ((3,1) array) - the parameters of the tri-noulli distribution
     location (x,y): randomly generates a location for the agent
     health (float): Initializes health to 1.
 
@@ -48,24 +48,39 @@ class Agent():
         # res = minimize(liklihood, x0, method='trust-constr', jac=liklihood_jac,  constraints=[linear_constraint])
 
 
-    def update_dist_params(self, observations, c):
+    def update_dist_params(self, obs, c):
         """
-        c - float - confidence weight of other agents decisions
-        observations - ndarray (n x 3)
+        c (float) - confidence weight of other agents decisions
+        observations ((n,1)ndarray)
         """
-        m = np.mean(self.observations)
+        observations = np.array(obs)
+        observed_dist = np.array([Tools.percent_correct(observations,0),
+                                  Tools.percent_correct(observations,1),
+                                  Tools.percent_correct(observations,2)])
+        n = observations.size
         #update prior to posterior
-        self.dist_params = self.dist_params + c*(self.observations/m)
+        self.dist_params = self.dist_params + c * n * observed_dist
         #normalize
         self.dist_params /= sum(self.dist_params)
 
     def act(self, correct_well):
         """
-            returns highest probable good choice
-            This is where we would code up the utility function as well
-            Enacts Consequences (such as death if health = 0)
+        returns highest probable good choice
+        Enacts Consequences (such as death if health = 0)
+
+        This is where we would code up the utility function as well
+        We can see other peoples locations
+
+        parameters:
+            agent list = list of all other agents
+            correct_well = which well has water
+
         """
-        choice = np.argmax(self.dist_params)
+
+        #checks if all three elements are tied
+        if len(set(self.dist_params)) ==1:
+                choice = np.random.array(np.array([0,1,2]))
+        else:   choice = np.argmax(self.dist_params)
 
         #update health depending on right or wrong choice
         self.health = self.health - 1./3 if choice != correct_well else 1.
