@@ -1,5 +1,4 @@
-from AgentFactory import AgentFactory
-from AgentFactory import Agent
+from Agent import Agent
 import numpy as np
 import random
 
@@ -33,7 +32,7 @@ class World():
         self.ratio = np.array(ratio)
 
         #make list of agents
-        self.Agent_list = [Agent() for i in self.population]
+        self.Agent_list = [Agent() for i in range(self.population)]
 
 
     def seed_list(self, correctWell):
@@ -43,34 +42,41 @@ class World():
         """
         #make them random and get how many good and bad
         random.shuffle(self.Agent_list)
-        (num_Good, num_Bad) = tuple([int(np.round(self.ratio[1:]*self.population))])
+        num_Good, num_Bad = tuple(np.round(self.ratio[1:]*self.population).astype(int))
 
-        #seed the agents
-        for Agent in self.Agent_list[:num_Good]:
-            Agent.seed("good",correctWell)
-        for Agent in self.Agent_list[num_Good:num_Good+num_Bad]:
-            Agent.seed("bad",correctWell)
+        if self.ratio[0] != 1:
+            #seed the agents
+            for agent in self.Agent_list[:num_Good]:
+                agent.seed("good",correctWell)
+            for agent in self.Agent_list[num_Good:num_Good+num_Bad]:
+                agent.seed("bad",correctWell)
 
-        random.shuffle(self.Agent_list)
+            random.shuffle(self.Agent_list)
 
-    def each_day(self):
+    def each_day(self, cascade =True):
         correctWell = np.random.choice(np.array([0, 1, 2]))
 
         #seed list
         self.seed_list(correctWell)
 
         #tracking the actions of the agents
-        observations = [self.Agent_list[1].act(correctWell, self.well_locations)]
-        for Agent in self.Angel_list[1:]:
+        if self.population == 0:
+            return correctWell, 0, 0
+        observations = [self.Agent_list[0].act(correctWell, self.well_locations)]
+        for agent in self.Agent_list[1:]:
             #I dont know how to decide the confidence
-            confidence = np.random.random()
-            Agent.update_dist_params(observations, confidence)
-            observations.append(Agent.act(correctWell, self.well_locations))
+            if cascade:
+                confidence = np.random.random()
+                agent.update_dist_params(observations, confidence)
+            observations.append(agent.act(correctWell, self.well_locations))
 
         #update agents/population based on deaths
-        deaths = 0
-        for Agent in self.Agent_list.copy():
-            if Agent.health == 0:
-                deaths += 1
-                self.Agent_list.pop(Agent)
-        self.population -= deaths
+        Agent_remove = []
+        for agent in self.Agent_list:
+            if agent.health == 0:
+                Agent_remove.append(agent)
+        for agent in Agent_remove:
+            self.Agent_list.remove(agent)
+        self.population = len(self.Agent_list)
+
+        return correctWell, np.sum(np.array(observations) == correctWell), self.population

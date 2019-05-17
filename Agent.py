@@ -75,7 +75,11 @@ class Agent():
         #normalize
         self.dist_params /= sum(self.dist_params)
 
-    def act(self, correct_well, well_location):
+    def utility(self, well_locations):
+        distances = np.linalg.norm(self.location-well_locations, axis = 1)
+        self.dist_param = distances/(2*np.sqrt(2))
+
+    def act(self, correct_well, well_locations):
         """
         Returns highest probable good choice
         Enacts Consequences (such as death if health = 0)
@@ -87,6 +91,8 @@ class Agent():
             correct_well (int) =  0,1,or 2 which well has water
             well_locations np.array() = x and y coordinatess of each well
         """
+        #get utility function and update distribution parameters
+        self.utility(well_locations)
 
         #checks if all three elements are tied
         if len(set(self.dist_params)) ==1:
@@ -94,7 +100,10 @@ class Agent():
         else:   choice = np.argmax(self.dist_params)
 
         #update health depending on right or wrong choice
-        self.health = self.health - 1 if choice != correct_well else 3.
+        if choice != correct_well:
+            self.health = self.health - 1 
+        else:
+            self.health = 3
 
         return choice
 
