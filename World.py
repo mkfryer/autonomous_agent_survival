@@ -68,11 +68,12 @@ class World():
         #tracking the actions of the agents
         if self.population == 0:
             return
-        observations = [self.Agent_list[0].act(correctWell, self.well_locations)]
+        observations = [self.Agent_list[0].act([],correctWell, self.well_locations)]
         for agent in self.Agent_list[1:]:
             if cascade:
-                agent.update_dist_params(observations)
-            observations.append(agent.act(correctWell, self.well_locations))
+                observations.append(agent.act(observations,correctWell, self.well_locations))
+            else:
+                observations.append(agent.act([],correctWell, self.well_locations))
 
         #update agents/population based on deaths
         Agent_remove = []
