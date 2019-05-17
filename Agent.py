@@ -26,10 +26,7 @@ class Agent():
         Parameter:
         """
         #initialize random prior distribution parameters
-        dist_params = np.random.random(3)
-        dist_params /= np.sum(dist_params)
-        self.dist_params = dist_params
-        self.seed_type = "neutral"
+        self.create_uninformed_agent()
 
         #get location of the agent
         domain = np.linspace(-1.,1.,101)
@@ -43,11 +40,14 @@ class Agent():
 
     def seed(self, seed_type, correct_well):
         if not self.global_confidence:
-            self.confidence = np.random.randint(0,100)/10000.
+            self.confidence = np.random.randint(0,1)/100.
 
         if seed_type == "good":
             self.create_informed_agent(correct_well)
-        else: self.create_bad_agent(correct_well)
+        elif seed_type == "bad":
+            self.create_bad_agent(correct_well)
+        else:
+            self.create_uninformed_agent()
 
 
     def get_MLE(self, observations):
@@ -117,7 +117,14 @@ class Agent():
         dist_params[dist_params==1] = np.array([rand, 1.-rand])
         self.dist_params = dist_params
 
-    def create_informed_agent(self,well_index, low_variance = True):
+    def create_uninformed_agent(self):
+        self.seed_type = "neutral"
+
+        dist_params = np.random.random(3)
+        dist_params /= np.sum(dist_params)
+        self.dist_params = dist_params
+
+    def create_informed_agent(self,well_index):
         """
         Creates a probable informed agent. If variance is low then
         there is a very high chance the agent will have really good info.
@@ -133,11 +140,7 @@ class Agent():
 
         #get variables for beta distrb.
         #these effect the variance
-        if low_variance:
-            a, b = (5, .5)
-        #well-informed
-        else:
-             a, b = (.5, .5)
+        a, b = (5, .5)
 
         #assign infomred probability to the well distr. index
         dist_params[well_index] = np.random.beta(a, b, 1)

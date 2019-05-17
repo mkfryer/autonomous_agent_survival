@@ -48,7 +48,9 @@ class World():
         """
         #make them random and get how many good and bad
         random.shuffle(self.Agent_list)
-        num_Good, num_Bad = tuple(np.round(self.ratio[1:]*self.population).astype(int))
+        num_Good = int(np.round(self.ratio[1]*self.population))
+        num_Bad = int(np.round(self.ratio[2]*self.population))
+        #num_Good, num_Bad = tuple(np.round(self.ratio[1:]*self.population).astype(int))
 
         if self.ratio[0] != 1:
             #seed the agents
@@ -56,6 +58,8 @@ class World():
                 agent.seed("good",correctWell)
             for agent in self.Agent_list[num_Good:num_Good+num_Bad]:
                 agent.seed("bad",correctWell)
+            for egent in self.Agent_list[num_Good+num_Bad:]:
+                agent.seed("neutral",correctWell)
 
             random.shuffle(self.Agent_list)
 
@@ -77,6 +81,10 @@ class World():
             else:
                 observations.append(agent.act([],correctWell, self.well_locations))
 
+        data = []
+        for i, obs in enumerate(observations):
+            data.append([i,correctWell,obs,self.Agent_list[i].seed_type])
+
         #update agents/population based on deaths
         Agent_remove = []
         for agent in self.Agent_list:
@@ -87,6 +95,8 @@ class World():
         self.population = len(self.Agent_list)
 
         self.collect_data(observations,correctWell)
+
+        #print(np.array(data))
 
         #return correctWell, np.sum(np.array(observations) == correctWell), self.population
 
@@ -103,6 +113,15 @@ class World():
         well2 = np.sum(np.array(obs) == 1)
         well3 = np.sum(np.array(obs) == 2)
 
-        percent_correct = np.sum(np.array(obs) == correctWell)/self.population
 
-        self.get_data = np.append(self.get_data,[self.population, percent_correct, well1,well2,well3])
+        percent_correct = np.sum(np.array(obs) == correctWell)/self.population if self.population != 0 else 0
+
+
+        #print(self.get_data)
+        data = list(self.get_data)
+        data.append(np.array([self.population, percent_correct, well1,well2,well3]))
+        self.get_data = np.array(data)
+
+
+
+        #self.get_data = np.append(self.get_data,np.array([self.population, percent_correct, well1,well2,well3]))
